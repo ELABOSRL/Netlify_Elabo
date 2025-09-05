@@ -22,13 +22,15 @@ exports.handler = async (event) => {
   }
 
   try {
-    // 🔍 Parse del body ricevuto da Netlify (stringa → oggetto)
+    // 🔍 Parse del body ricevuto dal frontend (stringa → oggetto)
     const payload = JSON.parse(event.body);
 
-    // Invio ad Appwrite
+    // ✅ Wrappo nel formato che Appwrite si aspetta
     const res = await axios.post(
       "https://cloud.appwrite.io/v1/functions/68b7121a002a6d0a806c/executions", // ID funzione
-      JSON.stringify(payload), // ✅ invio JSON valido
+      {
+        body: JSON.stringify(payload) // <-- deve stare in `body` come stringa
+      },
       {
         headers: {
           "x-appwrite-project": "6889cae000359c469009", // ID progetto
@@ -41,9 +43,9 @@ exports.handler = async (event) => {
     // 🔍 Estraggo la risposta dal campo `responseBody` di Appwrite
     let parsedBody;
     try {
-      parsedBody = JSON.parse(res.data.responseBody); // dovrebbe essere JSON valido
+      parsedBody = JSON.parse(res.data.responseBody); // JSON valido
     } catch {
-      parsedBody = { raw: res.data.responseBody }; // fallback se non è JSON
+      parsedBody = { raw: res.data.responseBody }; // fallback
     }
 
     return {

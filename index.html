@@ -152,6 +152,7 @@
     const form = document.getElementById('ask-form');
     const input = document.getElementById('question');
     const chat = document.getElementById('chat-messages');
+    let history = []; // 🔑 mantiene la conversazione
 
     toggleBtn.addEventListener('click', () => {
       chatBox.classList.toggle('open');
@@ -163,6 +164,8 @@
       if (!text) return;
 
       appendMessage('user', text);
+      history.push({ role: "user", message: text }); // salva in history
+
       input.value = '';
       appendMessage('bot', 'Sto pensando...');
 
@@ -170,19 +173,22 @@
         const res = await fetch('/proxy', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ msg: text })
+          body: JSON.stringify({ msg: text, history })
         });
 
-        const raw = await res.text(); // 🔍 prendo sempre testo
+        const raw = await res.text();
         let data;
         try {
-          data = JSON.parse(raw); // provo a fare parse
+          data = JSON.parse(raw);
         } catch {
-          data = { reply: raw }; // se non è JSON, lo passo come testo grezzo
+          data = { reply: raw };
         }
 
         const lastBotMsg = chat.querySelector('.message.bot:last-child');
-        if (lastBotMsg) lastBotMsg.textContent = data.reply || data.error || 'Nessuna risposta.';
+        const reply = data.reply || data.error || 'Nessuna risposta.';
+        if (lastBotMsg) lastBotMsg.textContent = reply;
+
+        history.push({ role: "bot", message: reply }); // salva risposta in history
       } catch (err) {
         const lastBotMsg = chat.querySelector('.message.bot:last-child');
         if (lastBotMsg) lastBotMsg.textContent = 'Errore: ' + err.message;

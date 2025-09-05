@@ -22,9 +22,12 @@ exports.handler = async (event) => {
   }
 
   try {
+    // 🔍 Parse del body che arriva dalla chat
+    const payload = JSON.parse(event.body);
+
     const res = await axios.post(
       "https://cloud.appwrite.io/v1/functions/68b7121a002a6d0a806c/executions", // ID funzione
-      event.body,
+      JSON.stringify(payload), // ✅ ora mando JSON valido
       {
         headers: {
           "x-appwrite-project": "6889cae000359c469009", // ID progetto
@@ -34,7 +37,7 @@ exports.handler = async (event) => {
       }
     );
 
-    // La risposta di Appwrite contiene diversi campi (statusCode, responseBody, ecc.)
+    // La risposta Appwrite include responseBody come stringa JSON
     return {
       statusCode: 200,
       headers: {
@@ -44,8 +47,13 @@ exports.handler = async (event) => {
       body: JSON.stringify(JSON.parse(res.data.responseBody))
     };
   } catch (error) {
+    console.error("❌ Errore proxy:", error.message);
+
     return {
       statusCode: 500,
+      headers: {
+        "Access-Control-Allow-Origin": "*"
+      },
       body: JSON.stringify({ error: error.message })
     };
   }

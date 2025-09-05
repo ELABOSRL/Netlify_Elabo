@@ -22,12 +22,13 @@ exports.handler = async (event) => {
   }
 
   try {
-    // 🔍 Parse del body che arriva dalla chat
+    // 🔍 Parse del body ricevuto da Netlify (stringa → oggetto)
     const payload = JSON.parse(event.body);
 
+    // Invio ad Appwrite
     const res = await axios.post(
       "https://cloud.appwrite.io/v1/functions/68b7121a002a6d0a806c/executions", // ID funzione
-      JSON.stringify(payload), // ✅ ora mando JSON valido
+      JSON.stringify(payload), // ✅ invio JSON valido
       {
         headers: {
           "x-appwrite-project": "6889cae000359c469009", // ID progetto
@@ -37,14 +38,21 @@ exports.handler = async (event) => {
       }
     );
 
-    // La risposta Appwrite include responseBody come stringa JSON
+    // 🔍 Estraggo la risposta dal campo `responseBody` di Appwrite
+    let parsedBody;
+    try {
+      parsedBody = JSON.parse(res.data.responseBody); // dovrebbe essere JSON valido
+    } catch {
+      parsedBody = { raw: res.data.responseBody }; // fallback se non è JSON
+    }
+
     return {
       statusCode: 200,
       headers: {
         "Access-Control-Allow-Origin": "*",
         "Content-Type": "application/json"
       },
-      body: JSON.stringify(JSON.parse(res.data.responseBody))
+      body: JSON.stringify(parsedBody)
     };
   } catch (error) {
     console.error("❌ Errore proxy:", error.message);

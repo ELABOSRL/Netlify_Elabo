@@ -173,9 +173,16 @@
           body: JSON.stringify({ msg: text })
         });
 
-        const data = await res.json();
+        const raw = await res.text(); // 🔍 prendo sempre testo
+        let data;
+        try {
+          data = JSON.parse(raw); // provo a fare parse
+        } catch {
+          data = { reply: raw }; // se non è JSON, lo passo come testo grezzo
+        }
+
         const lastBotMsg = chat.querySelector('.message.bot:last-child');
-        if (lastBotMsg) lastBotMsg.textContent = data.reply || 'Nessuna risposta.';
+        if (lastBotMsg) lastBotMsg.textContent = data.reply || data.error || 'Nessuna risposta.';
       } catch (err) {
         const lastBotMsg = chat.querySelector('.message.bot:last-child');
         if (lastBotMsg) lastBotMsg.textContent = 'Errore: ' + err.message;
@@ -193,4 +200,3 @@
 
 </body>
 </html>
-

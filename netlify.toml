@@ -1,11 +1,9 @@
 [build]
-  publish = "."
-
-[functions]
-  directory = "functions"
-  node_bundler = "esbuild"
+  functions = "functions"   # cartella dove sta proxy.js
+  publish = "."             # pubblica i file statici dalla root (dove c’è index.html)
 
 [[redirects]]
   from = "/proxy"
   to = "/.netlify/functions/proxy"
   status = 200
+  force = true

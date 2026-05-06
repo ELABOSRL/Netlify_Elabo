@@ -47,6 +47,7 @@
       opacity: 0;
       transform: translateY(20px);
       transition: all 0.3s ease;
+      font-family: 'Open Sans', 'Helvetica Neue', sans-serif;
     }
 
     .chat-widget.open {
@@ -57,6 +58,7 @@
 
     .chat-header {
       background: #faf4e1;
+      color: black;
       padding: 10px;
       display: flex;
       align-items: center;
@@ -65,6 +67,7 @@
 
     .chat-header img {
       height: 24px;
+      width: auto;
     }
 
     .chat-messages {
@@ -79,6 +82,7 @@
       padding: 10px;
       border-radius: 12px;
       max-width: 80%;
+      clear: both;
     }
 
     .message.user {
@@ -92,6 +96,7 @@
       background: #ffffff;
       color: #000;
       margin-right: auto;
+      text-align: left;
     }
 
     .chat-input {
@@ -103,17 +108,23 @@
 
     .chat-input input {
       flex: 1;
+      border: 1px solid #ccc;
       border-radius: 20px;
       padding: 10px;
+      font-size: 14px;
+      outline: none;
+      font-family: 'Open Sans', 'Helvetica Neue', sans-serif;
     }
 
     .chat-input button {
+      border: none;
       background: #135d66;
       color: white;
-      border-radius: 20px;
       padding: 10px 15px;
+      border-radius: 20px;
       margin-left: 5px;
       cursor: pointer;
+      font-family: 'Open Sans', 'Helvetica Neue', sans-serif;
     }
   </style>
 </head>
@@ -123,7 +134,7 @@
 
 <div class="chat-widget" id="chat-box">
   <div class="chat-header">
-    <img src="2021.png">
+    <img src="2021.png" alt="Logo E-labo">
     <span>Chatta con E-labo</span>
   </div>
   <div class="chat-messages" id="chat-messages"></div>
@@ -165,13 +176,20 @@ form.addEventListener('submit', async (e) => {
       body: JSON.stringify({ msg: text, history })
     });
 
-    const data = await res.json();
-    const reply = data.reply || data.error || 'Nessuna risposta.';
+    const raw = await res.text();
+    let data;
+    try {
+      data = JSON.parse(raw);
+    } catch {
+      data = { reply: raw };
+    }
 
+    const reply = data.reply || data.error || 'Nessuna risposta.';
     const lastBotMsg = chat.querySelector('.message.bot:last-child');
 
-    // 👇 QUI ERA IL BUG
-    if (lastBotMsg) lastBotMsg.innerHTML = renderBotMessage(reply);
+    if (lastBotMsg) {
+      lastBotMsg.innerHTML = renderBotMessage(reply); // ✅ FIX
+    }
 
     history.push({ role: "bot", message: reply });
 
@@ -198,14 +216,14 @@ function appendMessage(sender, text) {
 function renderBotMessage(text) {
   const regex = /ALLEGATO\|(.+?)\|(.+)/g;
 
-  let cleanText = text;
   let attachments = [];
+  let cleanText = text;
 
   let match;
   while ((match = regex.exec(text)) !== null) {
     attachments.push({
-      name: match[1],
-      url: match[2]
+      name: match[1].trim(),
+      url: match[2].trim()
     });
   }
 

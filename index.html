@@ -12,23 +12,32 @@
       background: #f0f0f0;
     }
 
-    /* Animazione per il rimbalzo del bollo al click */
-@keyframes bounceButton {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(0.9);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
+    /* Animazione per il rimbalzo automatico del bollo */
+    @keyframes autoBounce {
+      0%, 100% {
+        transform: translateY(0) scale(1);
+      }
+      25% {
+        transform: translateY(-15px) scale(1.1);
+      }
+      50% {
+        transform: translateY(0) scale(0.95);
+      }
+      75% {
+        transform: translateY(-8px) scale(1.05);
+      }
+    }
 
-/* Applica l'animazione al pulsante quando viene cliccato */
-.chat-toggle-btn:active {
-  animation: bounceButton 0.2s ease-out;
-}
+    /* Animazione per il rimbalzo al click */
+    @keyframes bounceButton {
+      0% { transform: scale(1); }
+      50% { transform: scale(0.9); }
+      100% { transform: scale(1); }
+    }
+
+    .chat-toggle-btn:active {
+      animation: bounceButton 0.2s ease-out;
+    }
     .chat-toggle-btn {
       position: fixed;
       bottom: 90px;
@@ -48,8 +57,11 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.3);
       padding: 0;
       overflow: hidden;
+      animation: autoBounce 5s infinite; /* Animazione automatica */
     }
-
+    .chat-widget.open + .chat-toggle-btn {
+      animation: none; /* Ferma l'animazione quando la chat è aperta */
+    }
     .chat-toggle-btn img {
       width: 100%;
       height: 100%;

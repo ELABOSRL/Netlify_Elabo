@@ -6,13 +6,51 @@
   <title>Chat con Gemini</title>
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400&display=swap" rel="stylesheet">
   <style>
+    // Funzione per avviare/fermare l'animazione del bollo
+function startBounceAnimation() {
+  const toggleBtn = document.getElementById('toggle-chat');
+  let isAnimating = false;
+
+  function animate() {
+    if (isAnimating) return;
+    isAnimating = true;
+
+    // Applica l'animazione per 0.5s
+    toggleBtn.style.animation = 'autoVibrate 0.5s ease-in-out forwards';
+
+    // Dopo 0.5s, rimuovi l'animazione e attendi 5s
+    setTimeout(() => {
+      toggleBtn.style.animation = 'none';
+      isAnimating = false;
+
+      // Ripeti dopo 5s di pausa
+      setTimeout(animate, 5000);
+    }, 500);
+  }
+
+  // Avvia l'animazione all'inizio
+  animate();
+
+  // Ferma l'animazione quando la chat viene aperta
+  document.getElementById('toggle-chat').addEventListener('click', () => {
+    if (chatBox.classList.contains('open')) {
+      toggleBtn.style.animation = 'none';
+    } else {
+      // Riavvia l'animazione dopo 5s dalla chiusura
+      setTimeout(animate, 5000);
+    }
+  });
+}
+
+// Chiamata alla funzione all'avvio
+startBounceAnimation();
     body {
       margin: 0;
       font-family: 'Open Sans', 'Helvetica Neue', sans-serif;
       background: #f0f0f0;
     }
 
-/* Animazione per la vibrazione del bollo (orizzontale, senza ingrandimento) */
+/* Animazione per la vibrazione del bollo (dura 0.5s) */
 @keyframes autoVibrate {
   0%, 100% {
     transform: translateX(0);
@@ -31,17 +69,6 @@
   }
 }
 
-/* Animazione per il click (rimbalzo sottile) */
-@keyframes bounceButton {
-  0% { transform: scale(1); }
-  50% { transform: scale(0.95); }
-  100% { transform: scale(1); }
-}
-
-.chat-toggle-btn:active {
-  animation: bounceButton 0.2s ease-out;
-}
-
 .chat-toggle-btn {
   position: fixed;
   bottom: 90px;
@@ -49,10 +76,8 @@
   width: 70px;
   height: 70px;
   background-color: #faf4e1;
-  color: white;
   border: 3px solid #135d66;
   border-radius: 50%;
-  font-size: 28px;
   cursor: pointer;
   z-index: 9999;
   display: flex;
@@ -61,11 +86,7 @@
   box-shadow: 0 4px 12px rgba(0,0,0,0.3);
   padding: 0;
   overflow: hidden;
-  animation: autoVibrate 0.5s infinite; /* Vibrazione ogni 5 secondi */
-}
-
-.chat-widget.open + .chat-toggle-btn {
-  animation: none !important; /* Ferma l'animazione quando la chat è aperta */
+  /* Rimuovi l'animazione CSS continua */
 }
 
 .chat-toggle-btn img {

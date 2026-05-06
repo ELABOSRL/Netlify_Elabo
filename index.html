@@ -29,6 +29,14 @@
       align-items: center;
       justify-content: center;
       box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .chat-toggle-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
     .chat-widget {
@@ -130,7 +138,9 @@
 </head>
 <body>
 
-<button class="chat-toggle-btn" id="toggle-chat">💬</button>
+<button class="chat-toggle-btn" id="toggle-chat">
+  <img src="2021.png" alt="Logo E-labo">
+</button>
 
 <div class="chat-widget" id="chat-box">
   <div class="chat-header">
@@ -188,7 +198,7 @@ form.addEventListener('submit', async (e) => {
     const lastBotMsg = chat.querySelector('.message.bot:last-child');
 
     if (lastBotMsg) {
-      lastBotMsg.innerHTML = renderBotMessage(reply); // ✅ FIX
+      lastBotMsg.innerHTML = renderBotMessage(reply);
     }
 
     history.push({ role: "bot", message: reply });
@@ -231,8 +241,8 @@ function renderBotMessage(text) {
 
   let html = `<div>${cleanText}</div>`;
 
-attachments.forEach(att => {
-  html += `
+  attachments.forEach(att => {
+    html += `
     <div style="
       margin-top:10px;
       padding:10px;
@@ -253,7 +263,7 @@ attachments.forEach(att => {
       </a>
     </div>
   `;
-});
+  });
 
   return html;
 }

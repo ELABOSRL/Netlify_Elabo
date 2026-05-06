@@ -6,44 +6,6 @@
   <title>Chat con Gemini</title>
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400&display=swap" rel="stylesheet">
   <style>
-    // Funzione per avviare/fermare l'animazione del bollo
-function startBounceAnimation() {
-  const toggleBtn = document.getElementById('toggle-chat');
-  let isAnimating = false;
-
-  function animate() {
-    if (isAnimating) return;
-    isAnimating = true;
-
-    // Applica l'animazione per 0.5s
-    toggleBtn.style.animation = 'autoVibrate 0.5s ease-in-out forwards';
-
-    // Dopo 0.5s, rimuovi l'animazione e attendi 5s
-    setTimeout(() => {
-      toggleBtn.style.animation = 'none';
-      isAnimating = false;
-
-      // Ripeti dopo 5s di pausa
-      setTimeout(animate, 5000);
-    }, 500);
-  }
-
-  // Avvia l'animazione all'inizio
-  animate();
-
-  // Ferma l'animazione quando la chat viene aperta
-  document.getElementById('toggle-chat').addEventListener('click', () => {
-    if (chatBox.classList.contains('open')) {
-      toggleBtn.style.animation = 'none';
-    } else {
-      // Riavvia l'animazione dopo 5s dalla chiusura
-      setTimeout(animate, 5000);
-    }
-  });
-}
-
-// Chiamata alla funzione all'avvio
-startBounceAnimation();
     body {
       margin: 0;
       font-family: 'Open Sans', 'Helvetica Neue', sans-serif;
@@ -342,6 +304,43 @@ function renderBotMessage(text) {
   return html;
 }
 </script>
+// Funzione per avviare/fermare l'animazione del bollo
+function startBounceAnimation() {
+  const toggleBtn = document.getElementById('toggle-chat');
+  let isAnimating = false;
 
+  function animate() {
+    if (isAnimating) return;
+    isAnimating = true;
+
+    // Applica l'animazione per 0.5s
+    toggleBtn.style.animation = 'autoVibrate 0.5s ease-in-out forwards';
+
+    // Dopo 0.5s, rimuovi l'animazione e attendi 5s
+    setTimeout(() => {
+      toggleBtn.style.animation = 'none';
+      isAnimating = false;
+
+      // Ripeti dopo 5s di pausa
+      setTimeout(animate, 5000);
+    }, 500);
+  }
+
+  // Avvia l'animazione all'inizio
+  animate();
+
+  // Ferma l'animazione quando la chat viene aperta
+  document.getElementById('toggle-chat').addEventListener('click', () => {
+    if (chatBox.classList.contains('open')) {
+      toggleBtn.style.animation = 'none';
+    } else {
+      // Riavvia l'animazione dopo 5s dalla chiusura
+      setTimeout(animate, 5000);
+    }
+  });
+}
+
+// Chiamata alla funzione all'avvio
+startBounceAnimation();
 </body>
 </html>

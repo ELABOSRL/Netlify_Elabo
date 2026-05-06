@@ -195,21 +195,32 @@
       }
     });
 
-function appendMessage(sender, text) {
-  const msg = document.createElement('div');
-  msg.className = 'message ' + sender;
+function renderBotMessage(text) {
+  const attachmentRegex = /ALLEGATO\|(.+?)\|(.+)/g;
 
-  if (sender === 'bot') {
-    msg.innerHTML = renderBotMessage(text); // 👈 useremo HTML
-  } else {
-    msg.textContent = text; // utente resta semplice
+  let attachments = [];
+  let cleanText = text;
+
+  let match;
+  while ((match = attachmentRegex.exec(text)) !== null) {
+    attachments.push({
+      name: match[1].trim(),
+      url: match[2].trim()
+    });
   }
 
-  chat.appendChild(msg);
-  chat.scrollTop = chat.scrollHeight;
-}
-    function renderBotMessage(text) {
-  return text; // per ora non cambia nulla
+  // rimuove gli allegati dal testo
+  cleanText = text.replace(attachmentRegex, "").trim();
+
+  // HTML base (solo testo per ora)
+  let html = `<div>${cleanText}</div>`;
+
+  // aggiungiamo placeholder allegati (semplice per test)
+  attachments.forEach(att => {
+    html += `<div style="margin-top:8px;">📄 ${att.name}</div>`;
+  });
+
+  return html;
 }
   </script>
 

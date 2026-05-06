@@ -16,8 +16,8 @@
       position: fixed;
       bottom: 20px;
       right: 20px;
-      width: 120px;
-      height: 120px;
+      width: 70px;
+      height: 70px;
       background-color: #faf4e1;
       color: white;
       border: 3px solid #135d66;
@@ -39,30 +39,49 @@
       object-fit: cover;
     }
 
-    .chat-widget {
-      position: fixed;
-      bottom: 90px;
-      right: 20px;
-      width: 600px;
-      height: 400px;
-      background: white;
-      border-radius: 20px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-      display: none;
-      flex-direction: column;
-      overflow: hidden;
-      z-index: 9998;
-      opacity: 0;
-      transform: translateY(20px);
-      transition: all 0.3s ease;
-      font-family: 'Open Sans', 'Helvetica Neue', sans-serif;
-    }
+/* Animazione per l'effetto "rimbalzo" */
+@keyframes bounceInFromButton {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+    transform-origin: bottom right;
+  }
+  50% {
+    transform: translateY(-10px) scale(1.02);
+  }
+  70% {
+    transform: translateY(5px) scale(0.99);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
 
-    .chat-widget.open {
-      display: flex;
-      opacity: 1;
-      transform: translateY(0);
-    }
+/* Stile del widget chat con animazione */
+.chat-widget {
+  position: fixed;
+  bottom: 90px;
+  right: 20px;
+  width: 600px;
+  height: 400px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 9998;
+  opacity: 0;
+  transform: translateY(20px) scale(0.95);
+  transform-origin: bottom right; /* Punto di origine dell'animazione (vicino al pulsante) */
+  transition: none; /* Disabilita la transizione predefinita */
+}
+
+.chat-widget.open {
+  display: flex;
+  animation: bounceInFromButton 0.5s ease-out forwards; /* Applica l'animazione */
+}
 
     .chat-header {
       background: #faf4e1;

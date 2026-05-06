@@ -47,7 +47,6 @@
       opacity: 0;
       transform: translateY(20px);
       transition: all 0.3s ease;
-      font-family: 'Open Sans', 'Helvetica Neue', sans-serif;
     }
 
     .chat-widget.open {
@@ -58,7 +57,6 @@
 
     .chat-header {
       background: #faf4e1;
-      color: black;
       padding: 10px;
       display: flex;
       align-items: center;
@@ -67,7 +65,6 @@
 
     .chat-header img {
       height: 24px;
-      width: auto;
     }
 
     .chat-messages {
@@ -82,7 +79,6 @@
       padding: 10px;
       border-radius: 12px;
       max-width: 80%;
-      clear: both;
     }
 
     .message.user {
@@ -96,7 +92,6 @@
       background: #ffffff;
       color: #000;
       margin-right: auto;
-      text-align: left;
     }
 
     .chat-input {
@@ -108,121 +103,123 @@
 
     .chat-input input {
       flex: 1;
-      border: 1px solid #ccc;
       border-radius: 20px;
       padding: 10px;
-      font-size: 14px;
-      outline: none;
-      font-family: 'Open Sans', 'Helvetica Neue', sans-serif;
     }
 
     .chat-input button {
-      border: none;
       background: #135d66;
       color: white;
-      padding: 10px 15px;
       border-radius: 20px;
+      padding: 10px 15px;
       margin-left: 5px;
       cursor: pointer;
-      font-family: 'Open Sans', 'Helvetica Neue', sans-serif;
     }
   </style>
 </head>
 <body>
 
-  <!-- Bottone per aprire/chiudere -->
-  <button class="chat-toggle-btn" id="toggle-chat">💬</button>
+<button class="chat-toggle-btn" id="toggle-chat">💬</button>
 
-  <!-- Chat box -->
-  <div class="chat-widget" id="chat-box">
-    <div class="chat-header">
-      <img src="2021.png" alt="Logo E-labo">
-      <span>Chatta con E-labo</span>
-    </div>
-    <div class="chat-messages" id="chat-messages"></div>
-    <form class="chat-input" id="ask-form">
-      <input type="text" id="question" placeholder="Scrivi qui..." required />
-      <button type="submit">Invia</button>
-    </form>
+<div class="chat-widget" id="chat-box">
+  <div class="chat-header">
+    <img src="2021.png">
+    <span>Chatta con E-labo</span>
   </div>
+  <div class="chat-messages" id="chat-messages"></div>
+  <form class="chat-input" id="ask-form">
+    <input type="text" id="question" placeholder="Scrivi qui..." required />
+    <button type="submit">Invia</button>
+  </form>
+</div>
 
-  <script>
-    const toggleBtn = document.getElementById('toggle-chat');
-    const chatBox = document.getElementById('chat-box');
-    const form = document.getElementById('ask-form');
-    const input = document.getElementById('question');
-    const chat = document.getElementById('chat-messages');
-    let history = []; // 🔑 mantiene la conversazione
+<script>
+const toggleBtn = document.getElementById('toggle-chat');
+const chatBox = document.getElementById('chat-box');
+const form = document.getElementById('ask-form');
+const input = document.getElementById('question');
+const chat = document.getElementById('chat-messages');
 
-    toggleBtn.addEventListener('click', () => {
-      chatBox.classList.toggle('open');
+let history = [];
+
+toggleBtn.addEventListener('click', () => {
+  chatBox.classList.toggle('open');
+});
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const text = input.value.trim();
+  if (!text) return;
+
+  appendMessage('user', text);
+  history.push({ role: "user", message: text });
+
+  input.value = '';
+  appendMessage('bot', 'Sto pensando...');
+
+  try {
+    const res = await fetch('/proxy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ msg: text, history })
     });
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const text = input.value.trim();
-      if (!text) return;
+    const data = await res.json();
+    const reply = data.reply || data.error || 'Nessuna risposta.';
 
-      appendMessage('user', text);
-      history.push({ role: "user", message: text }); // salva in history
+    const lastBotMsg = chat.querySelector('.message.bot:last-child');
 
-      input.value = '';
-      appendMessage('bot', 'Sto pensando...');
+    // 👇 QUI ERA IL BUG
+    if (lastBotMsg) lastBotMsg.innerHTML = renderBotMessage(reply);
 
-      try {
-        const res = await fetch('/proxy', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ msg: text, history })
-        });
+    history.push({ role: "bot", message: reply });
 
-        const raw = await res.text();
-        let data;
-        try {
-          data = JSON.parse(raw);
-        } catch {
-          data = { reply: raw };
-        }
+  } catch (err) {
+    const lastBotMsg = chat.querySelector('.message.bot:last-child');
+    if (lastBotMsg) lastBotMsg.textContent = 'Errore: ' + err.message;
+  }
+});
 
-        const lastBotMsg = chat.querySelector('.message.bot:last-child');
-        const reply = data.reply || data.error || 'Nessuna risposta.';
-        if (lastBotMsg) lastBotMsg.textContent = reply;
+function appendMessage(sender, text) {
+  const msg = document.createElement('div');
+  msg.className = 'message ' + sender;
 
-        history.push({ role: "bot", message: reply }); // salva risposta in history
-      } catch (err) {
-        const lastBotMsg = chat.querySelector('.message.bot:last-child');
-        if (lastBotMsg) lastBotMsg.textContent = 'Errore: ' + err.message;
-      }
-    });
+  if (sender === 'bot') {
+    msg.innerHTML = renderBotMessage(text);
+  } else {
+    msg.textContent = text;
+  }
+
+  chat.appendChild(msg);
+  chat.scrollTop = chat.scrollHeight;
+}
 
 function renderBotMessage(text) {
-  const attachmentRegex = /ALLEGATO\|(.+?)\|(.+)/g;
+  const regex = /ALLEGATO\|(.+?)\|(.+)/g;
 
-  let attachments = [];
   let cleanText = text;
+  let attachments = [];
 
   let match;
-  while ((match = attachmentRegex.exec(text)) !== null) {
+  while ((match = regex.exec(text)) !== null) {
     attachments.push({
-      name: match[1].trim(),
-      url: match[2].trim()
+      name: match[1],
+      url: match[2]
     });
   }
 
-  // rimuove gli allegati dal testo
-  cleanText = text.replace(attachmentRegex, "").trim();
+  cleanText = text.replace(regex, "").trim();
 
-  // HTML base (solo testo per ora)
   let html = `<div>${cleanText}</div>`;
 
-  // aggiungiamo placeholder allegati (semplice per test)
   attachments.forEach(att => {
     html += `<div style="margin-top:8px;">📄 ${att.name}</div>`;
   });
 
   return html;
 }
-  </script>
+</script>
 
 </body>
 </html>

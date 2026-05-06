@@ -12,6 +12,23 @@
       background: #f0f0f0;
     }
 
+    /* Animazione per il rimbalzo del bollo al click */
+@keyframes bounceButton {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Applica l'animazione al pulsante quando viene cliccato */
+.chat-toggle-btn:active {
+  animation: bounceButton 0.2s ease-out;
+}
     .chat-toggle-btn {
       position: fixed;
       bottom: 20px;
